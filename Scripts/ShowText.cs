@@ -7,6 +7,7 @@ public class ShowText : MonoBehaviour
     [SerializeField] TMPro.TMP_Text textUI;
     [SerializeField] string text;
     bool used = false;
+    [SerializeField] float mps = 0.1f;
     // Start is called before the first frame update
     void Start()
     {
@@ -43,13 +44,13 @@ public class ShowText : MonoBehaviour
         for(float i = 0; i <= 1; i+=0.02f)
         {
             textUI.color = new Color(1, 1, 1, i);
-            textUI.transform.position = new Vector3(textUI.transform.position.x - 0.1f, textUI.transform.position.y);
+            textUI.transform.position = new Vector3(textUI.transform.position.x - mps, textUI.transform.position.y);
             yield return new WaitForSeconds(0.01f);
         }
         for (float i = 1; i >= 0; i -= 0.02f)
         {
             textUI.color = new Color(1, 1, 1, i);
-            textUI.transform.position = new Vector3(textUI.transform.position.x - 0.1f, textUI.transform.position.y);
+            textUI.transform.position = new Vector3(textUI.transform.position.x - mps, textUI.transform.position.y);
             yield return new WaitForSeconds(0.01f);
         }
         textUI.gameObject.SetActive(false);
