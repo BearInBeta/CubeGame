@@ -785,6 +785,27 @@ PrefabInstance:
       propertyPath: m_Name
       value: Hint
       objectReference: {fileID: 0}
+    - target: {fileID: 4791441003288047649, guid: fe06bc3f857af0542889aaef1c8a82f5,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+    - target: {fileID: 4791441003288047654, guid: fe06bc3f857af0542889aaef1c8a82f5,
+        type: 3}
+      propertyPath: m_text
+      value: dddddddddddddda
+      objectReference: {fileID: 0}
+    - target: {fileID: 4791441003288047654, guid: fe06bc3f857af0542889aaef1c8a82f5,
+        type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee,
+        type: 2}
+    - target: {fileID: 4791441003288047654, guid: fe06bc3f857af0542889aaef1c8a82f5,
+        type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
     m_RemovedComponents: []
     m_AddedGameObjects: []
   m_SourcePrefab: {fileID: 100100000, guid: fe06bc3f857af0542889aaef1c8a82f5, type: 3}
