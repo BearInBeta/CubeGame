@@ -21,6 +21,7 @@ public class PlayerController : MonoBehaviour
     float moveHorizontal = 0;
     float jumpAmount = 0;
     Vector3 down;
+    ChangePlayerColor lastUsed;
     BlockTypes.TYPES type = BlockTypes.TYPES.NORMAL;
     // Use this for initialization
     void Start()
@@ -233,8 +234,9 @@ public class PlayerController : MonoBehaviour
     void changeColor(GameObject g, Collision collision)
     {
 
-
+        
         ChangePlayerColor cpc = g.GetComponent<ChangePlayerColor>();
+        
         g.GetComponent<AudioSource>().PlayOneShot(g.GetComponent<AudioSource>().clip);
         gameObject.GetComponentInChildren<Renderer>().material.SetColor("_Color", cpc.getColor());
 
@@ -248,8 +250,11 @@ public class PlayerController : MonoBehaviour
 
         if (cpc.getType() == BlockTypes.TYPES.GRAVITY)
         {
-            changeG = true;
-            changeGravity();
+            if (cpc != lastUsed)
+            {
+                changeG = true;
+                changeGravity();
+            }
         }
         else if (cpc.getType() == BlockTypes.TYPES.DOUBLE_JUMP)
         {
@@ -284,8 +289,10 @@ public class PlayerController : MonoBehaviour
         }
         else if (cpc.getType() == BlockTypes.TYPES.ROTATE)
         {
-            if (type != cpc.getType())
+            if (cpc != lastUsed)
+            {
                 StartCoroutine(RotateWorld());
+            }
         }
         if (cpc.getType() != BlockTypes.TYPES.BOUNCE)
         {
@@ -296,6 +303,7 @@ public class PlayerController : MonoBehaviour
         }
 
         type = cpc.getType();
+        lastUsed = cpc;
 
 
     }
@@ -305,7 +313,6 @@ public class PlayerController : MonoBehaviour
 
         GameObject MainContainer = GameObject.FindGameObjectWithTag("MainContainer");
         //Physics.gravity = new Vector3(0, -Physics.gravity.y, 0);
-        print(Physics.gravity);
         for (int i = 0; i < 45; i++)
         {
 
