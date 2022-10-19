@@ -34,7 +34,7 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        down = transform.TransformDirection(Vector3.down * -Physics.gravity.y / Mathf.Abs(Physics.gravity.y));
+        down = transform.TransformDirection(Vector3.down * -Mathf.Sign(Physics.gravity.y));
         moveHorizontal = Input.GetAxis("Horizontal");
         groundedCheck();
         shoot();
@@ -152,18 +152,19 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetButtonDown("Jump"))
         {
-
+            
             if (grounded)
             {
+                
                 grounded = false;
-                jumpAmount = jumpSpeed * -Physics.gravity.y / Mathf.Abs(Physics.gravity.y);
+                jumpAmount = jumpSpeed * -Mathf.Sign(Physics.gravity.y);
 
                 firstJump = true;
             }
             else if (doubleJump && firstJump)
             {
                 grounded = false;
-                jumpAmount = 1.3f * jumpSpeed * -Physics.gravity.y / Mathf.Abs(Physics.gravity.y);
+                jumpAmount = 1.3f * jumpSpeed * -Mathf.Sign(Physics.gravity.y);
                 firstJump = false;
 
             }
@@ -194,11 +195,13 @@ public class PlayerController : MonoBehaviour
             if (moveHorizontal != 0)
                 lastOri = moveHorizontal;
             // }
-            if (jumpAmount > 0 && rb.velocity.y != Mathf.Sign(jumpAmount))
+            if (Mathf.Abs(jumpAmount) > 0 && rb.velocity.y != Mathf.Sign(jumpAmount))
             {
                 rb.velocity = new Vector3(rb.velocity.x, 0);
+                print(Vector2.up * jumpAmount);
                 rb.AddForce(Vector2.up * jumpAmount, ForceMode.Impulse);
             }
+            
            
           
             jumpAmount = 0;
