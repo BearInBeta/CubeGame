@@ -198,7 +198,6 @@ public class PlayerController : MonoBehaviour
             if (Mathf.Abs(jumpAmount) > 0 && rb.velocity.y != Mathf.Sign(jumpAmount))
             {
                 rb.velocity = new Vector3(rb.velocity.x, 0);
-                print(Vector2.up * jumpAmount);
                 rb.AddForce(Vector2.up * jumpAmount, ForceMode.Impulse);
             }
             
