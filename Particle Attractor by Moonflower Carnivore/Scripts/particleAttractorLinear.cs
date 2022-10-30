@@ -16,6 +16,10 @@ public class particleAttractorLinear : MonoBehaviour {
 		}
 	}
 	void Update () {
+        if (target == null)
+        {
+            return;
+        }
         if (Mathf.Sqrt((Mathf.Pow(target.position.x - transform.position.x, 2)) + (Mathf.Pow(target.position.y - transform.position.y, 2))) < minDis)
         {
             m_Particles = new ParticleSystem.Particle[ps.main.maxParticles];
