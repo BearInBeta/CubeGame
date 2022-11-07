@@ -38,6 +38,7 @@ public class Obs : MonoBehaviour
     {
         if (other.gameObject.tag.Equals("Player"))
         {
+            GameObject.FindGameObjectWithTag("MainCamera").transform.parent = null;
             print(gameObject.name + " hit the player");
             explosion.transform.parent = null;
             explosion.SetActive(true);
