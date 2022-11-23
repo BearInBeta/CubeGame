@@ -14,14 +14,16 @@ public class PlayerController : MonoBehaviour
     bool firstJump = false;
     bool shooting = false;
     bool grounded = false;
+    bool bouncy = false;
     public bool canMove = true;
     float lastOri = 1;
-    [SerializeField] PhysicMaterial bouncy;
+    [SerializeField] PhysicMaterial bouncyMaterial;
     bool changeG = false;
     float moveHorizontal = 0;
     float jumpAmount = 0;
     Vector3 down;
     ChangePlayerColor lastUsed;
+    bool horBounce = false;
     BlockTypes.TYPES type = BlockTypes.TYPES.NORMAL;
     // Use this for initialization
     void Start()
@@ -37,7 +39,15 @@ public class PlayerController : MonoBehaviour
     {
         down = transform.TransformDirection(Vector3.down * -Mathf.Sign(Physics.gravity.y));
         moveHorizontal = Input.GetAxis("Horizontal");
-        groundedCheck();
+        if (groundedCheck(down))
+        {
+            grounded = true;
+
+        }
+        else
+        {
+            StartCoroutine(removeGrounded());
+        }
         shoot();
         //changeGravity();
         jump();
@@ -50,16 +60,35 @@ public class PlayerController : MonoBehaviour
         move();
         moveClamp();
     }
+    private void bounce(Collision collision)
+    {
+        horBounce = false;
+       
+        if (groundedCheck(down) || groundedCheck(-down))
+        {
+            rb.velocity = new Vector3(-collision.relativeVelocity.x, collision.relativeVelocity.y + 0.1962f * -Mathf.Sign(Physics.gravity.y), 0);
+        }else
+        {
+            horBounce = true;
+            rb.velocity = new Vector3(collision.relativeVelocity.x, -collision.relativeVelocity.y + 0.1962f * -Mathf.Sign(Physics.gravity.y), 0);
 
+        }
+    }
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.tag.Equals("Ground"))
         {
+            if (bouncy)
+            {
+                bounce(collision);
+            }
 
             changeColor(collision.gameObject, collision);
 
         }
     }
+
+   
 
     private void OnTriggerEnter(Collider other)
     {
@@ -106,22 +135,22 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void groundedCheck()
+    bool groundedCheck(Vector3 down)
     {
         RaycastHit hit;
         if (Physics.Raycast(transform.position, down, out hit, GetComponent<BoxCollider>().bounds.extents.y + 0.1f) || Physics.Raycast(transform.position + new Vector3(transform.localScale.x / 2, 0, 0), down, out hit, GetComponent<BoxCollider>().bounds.extents.y + 0.1f) || Physics.Raycast(transform.position - new Vector3(transform.localScale.x / 2, 0, 0), down, out hit, GetComponent<BoxCollider>().bounds.extents.y + 0.1f))
         {
-            if (hit.transform.gameObject.tag.Equals("Ground") && hit.transform.gameObject.GetComponent<ChangePlayerColor>().getType() != BlockTypes.TYPES.BOUNCE)
+            if (hit.transform.gameObject.tag.Equals("Ground"))
             {
-                grounded = true;
-                return;
+                return true;
 
             }
         }
 
-        StartCoroutine(removeGrounded());
+        return false;
 
     }
+
 
     IEnumerator removeGrounded()
     {
@@ -133,7 +162,7 @@ public class PlayerController : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(transform.position, down, out hit, GetComponent<BoxCollider>().bounds.extents.y + 0.1f) || Physics.Raycast(transform.position + new Vector3(transform.localScale.x / 2, 0, 0), down, out hit, GetComponent<BoxCollider>().bounds.extents.y + 0.1f) || Physics.Raycast(transform.position - new Vector3(transform.localScale.x / 2, 0, 0), down, out hit, GetComponent<BoxCollider>().bounds.extents.y + 0.1f))
         {
-            if (hit.transform.gameObject.tag.Equals("Ground") && hit.transform.gameObject.GetComponent<ChangePlayerColor>().getType() != BlockTypes.TYPES.BOUNCE)
+            if (hit.transform.gameObject.tag.Equals("Ground"))
             {
                 grounded = true;
 
@@ -184,7 +213,7 @@ public class PlayerController : MonoBehaviour
 
     private void move()
     {
-        if (canMove)
+        if (canMove && !horBounce)
         {
             
             // if ( Input.GetButton("Horizontal"))
@@ -214,7 +243,7 @@ public class PlayerController : MonoBehaviour
                 if (hit.transform.gameObject.tag.Equals("Ground"))
                 {
 
-                    if (hit.transform.gameObject.GetComponent<ChangePlayerColor>().getType() != BlockTypes.TYPES.BOUNCE)
+                    if (!bouncy)
                         if (Mathf.Abs(rb.velocity.x) > 0 && !Input.GetButton("Horizontal"))
                         {
                             rb.velocity = new Vector3(rb.velocity.x - (1 / friction) * Mathf.Abs(rb.velocity.x) * (rb.velocity.x / Mathf.Abs(rb.velocity.x)), rb.velocity.y, 0);
@@ -234,20 +263,21 @@ public class PlayerController : MonoBehaviour
     void changeColor(GameObject g, Collision collision)
     {
 
-        
+
         ChangePlayerColor cpc = g.GetComponent<ChangePlayerColor>();
         
         g.GetComponent<AudioSource>().PlayOneShot(g.GetComponent<AudioSource>().clip);
         gameObject.GetComponentInChildren<Renderer>().material.SetColor("_Color", cpc.getColor());
 
-        RaycastHit hit;
+
+
 
 
         actualSpeed = speed;
         doubleJump = false;
         shooting = false;
         changeG = false;
-
+        bouncy = false;
         if (cpc.getType() == BlockTypes.TYPES.GRAVITY)
         {
             if (cpc != lastUsed)
@@ -262,21 +292,8 @@ public class PlayerController : MonoBehaviour
         }
         else if (cpc.getType() == BlockTypes.TYPES.BOUNCE)
         {
-            if (Physics.Raycast(transform.position, down, out hit, GetComponent<BoxCollider>().bounds.extents.y + 0.1f) || Physics.Raycast(transform.position + new Vector3(transform.localScale.x / 2, 0, 0), down, out hit, GetComponent<BoxCollider>().bounds.extents.y + 0.1f) || Physics.Raycast(transform.position - new Vector3(transform.localScale.x / 2, 0, 0), down, out hit, GetComponent<BoxCollider>().bounds.extents.y + 0.1f))
-            {
-                if (hit.transform.gameObject.tag.Equals("Ground"))
-                {
-
-                    if (hit.transform.gameObject.GetComponent<ChangePlayerColor>().getType() == BlockTypes.TYPES.BOUNCE)
-                    {
-
-                        rb.velocity = new Vector3(-collision.relativeVelocity.x, collision.relativeVelocity.y + 0.1962f * -Mathf.Abs(Physics.gravity.y) / Physics.gravity.y, 0);
-
-                    }
-
-                }
-            }
-
+            bouncy = true;
+            bounce(collision);
         }
         else if (cpc.getType() == BlockTypes.TYPES.SPEED)
         {
@@ -294,13 +311,7 @@ public class PlayerController : MonoBehaviour
                 StartCoroutine(RotateWorld());
             }
         }
-        if (cpc.getType() != BlockTypes.TYPES.BOUNCE)
-        {
-            if (rb.velocity.x > 0)
-                rb.velocity = new Vector3(1, 0, 0);
-            else if (rb.velocity.x < 0)
-                rb.velocity = new Vector3(-1, 0, 0);
-        }
+    
 
         type = cpc.getType();
         lastUsed = cpc;

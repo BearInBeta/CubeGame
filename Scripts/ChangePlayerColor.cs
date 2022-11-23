@@ -7,7 +7,7 @@ public class ChangePlayerColor : MonoBehaviour {
     [SerializeField] PhysicMaterial bouncy;
     [SerializeField] PhysicMaterial Max;
     [SerializeField] Texture texture;
-    Color[] colors = new Color[] {Color.white, Color.red, new Color(1, 69f / 255f, 0, 1), Color.yellow, Color.green, Color.cyan, new Color(.5f, .8f,1, 0.2f), Color.magenta };
+    Color[] colors = new Color[] {Color.white, Color.cyan, new Color(1, 69f / 255f, 0, 1), Color.yellow, Color.green, Color.red, new Color(.5f, .8f,1, 0.2f), Color.magenta };
 
     [SerializeField] BlockTypes.TYPES type;
     // Use this for initialization

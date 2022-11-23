@@ -30,6 +30,11 @@ public class Void : MonoBehaviour {
             other.gameObject.SetActive(false);
             Instantiate(effect, transform.position, Quaternion.identity);
             GetComponent<AudioSource>().PlayOneShot(AC);
+            foreach(GameObject p in GameObject.FindGameObjectsWithTag("Player"))
+            {
+                if (p.activeInHierarchy == true)
+                    return;
+            }
             StartCoroutine(endLvl());
 
         }
