@@ -12,6 +12,7 @@ public class ChangePlayerColor : MonoBehaviour {
     [SerializeField] BlockTypes.TYPES type;
     // Use this for initialization
     void Start () {
+        
         changeType(type, false);
     }
     public BlockTypes.TYPES getType()
@@ -28,6 +29,15 @@ public class ChangePlayerColor : MonoBehaviour {
 	void Update () {
 		
 	}
+
+    public void makeGround()
+    {
+        
+        GetComponent<Renderer>().material.SetColor("_EmissionColor", new Color(122f/255f, 122f / 255f, 122f / 255f));
+        GetComponent<Renderer>().material.SetColor("_SpecColor", Color.black);
+
+        GetComponent<Rigidbody>().isKinematic = true;
+    }
     public void changeType(BlockTypes.TYPES type, bool gradual)
     {
         this.type = type;

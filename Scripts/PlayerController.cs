@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -25,6 +26,13 @@ public class PlayerController : MonoBehaviour
     ChangePlayerColor lastUsed;
     bool horBounce = false;
     BlockTypes.TYPES type = BlockTypes.TYPES.NORMAL;
+    Rigidbody selectedRigidbody;
+    Vector3 originalScreenTargetPosition;
+    Vector3 originalRigidbodyPos;
+    float selectionDistance;
+    public float forceAmount = 500;
+    string[] groundTags = new string[] {"Ground", "Shootable", "Drag"};
+
     // Use this for initialization
     void Start()
     {
@@ -37,6 +45,7 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        getMouseInput();
         down = transform.TransformDirection(Vector3.down * -Mathf.Sign(Physics.gravity.y));
         moveHorizontal = Input.GetAxis("Horizontal");
         if (groundedCheck(down))
@@ -55,28 +64,97 @@ public class PlayerController : MonoBehaviour
 
     }
 
+    void getMouseInput()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            //Check if we are hovering over Rigidbody, if so, select it
+            selectedRigidbody = GetRigidbodyFromMouseClick();
+        }
+        if (Input.GetMouseButtonUp(0) && selectedRigidbody)
+        {
+            selectedRigidbody.gameObject.GetComponent<ChangePlayerColor>().makeGround();
+            //Release selected Rigidbody if there any
+            selectedRigidbody = null;
+        }
+
+    }
+
+    void moveBody()
+    {
+
+        if (selectedRigidbody)
+        {
+            selectedRigidbody.constraints = RigidbodyConstraints.None;
+            selectedRigidbody.freezeRotation = true;
+            selectedRigidbody.gameObject.transform.rotation = Quaternion.identity;
+            
+            Camera targetCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
+
+            Vector3 mousePositionOffset = targetCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, selectionDistance)) - originalScreenTargetPosition;
+            selectedRigidbody.velocity = (originalRigidbodyPos + mousePositionOffset - selectedRigidbody.transform.position) * forceAmount * Time.deltaTime;
+        }
+
+    }
+
+
+    Rigidbody GetRigidbodyFromMouseClick()
+    {
+        
+        Camera targetCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
+        RaycastHit hitInfo;
+        Ray ray = targetCamera.ScreenPointToRay(Input.mousePosition);
+        bool hit = Physics.Raycast(ray, out hitInfo);
+        if (hit)
+        {
+            if (hitInfo.collider.gameObject.GetComponent<Rigidbody>())
+            {
+                if (hitInfo.collider.gameObject.tag.Equals("Drag"))
+                {
+                    selectionDistance = Vector3.Distance(ray.origin, hitInfo.point);
+                    originalScreenTargetPosition = targetCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, selectionDistance));
+                    originalRigidbodyPos = hitInfo.collider.transform.position;
+                    return hitInfo.collider.gameObject.GetComponent<Rigidbody>();
+                }
+            }
+        }
+
+
+        return null;
+
+    }
+
     private void FixedUpdate()
     {
+        moveBody();
         move();
         moveClamp();
     }
     private void bounce(Collision collision)
     {
         horBounce = false;
-       
+
         if (groundedCheck(down) || groundedCheck(-down))
         {
             rb.velocity = new Vector3(-collision.relativeVelocity.x, collision.relativeVelocity.y + 0.1962f * -Mathf.Sign(Physics.gravity.y), 0);
-        }else
+        }
+        else
         {
             horBounce = true;
+            StartCoroutine(removeHorbounce());
             rb.velocity = new Vector3(collision.relativeVelocity.x, -collision.relativeVelocity.y + 0.1962f * -Mathf.Sign(Physics.gravity.y), 0);
 
         }
     }
+
+    IEnumerator removeHorbounce()
+    {
+        yield return new WaitForSeconds(0.5f);
+        horBounce = false;
+    }
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.tag.Equals("Ground"))
+        if (Array.IndexOf(groundTags, collision.gameObject.tag) > -1)
         {
             if (bouncy)
             {
@@ -140,7 +218,7 @@ public class PlayerController : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(transform.position, down, out hit, GetComponent<BoxCollider>().bounds.extents.y + 0.1f) || Physics.Raycast(transform.position + new Vector3(transform.localScale.x / 2, 0, 0), down, out hit, GetComponent<BoxCollider>().bounds.extents.y + 0.1f) || Physics.Raycast(transform.position - new Vector3(transform.localScale.x / 2, 0, 0), down, out hit, GetComponent<BoxCollider>().bounds.extents.y + 0.1f))
         {
-            if (hit.transform.gameObject.tag.Equals("Ground"))
+            if (Array.IndexOf(groundTags, hit.transform.gameObject.tag) > -1)
             {
                 return true;
 
@@ -159,23 +237,9 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForFixedUpdate();
         yield return new WaitForFixedUpdate();
 
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position, down, out hit, GetComponent<BoxCollider>().bounds.extents.y + 0.1f) || Physics.Raycast(transform.position + new Vector3(transform.localScale.x / 2, 0, 0), down, out hit, GetComponent<BoxCollider>().bounds.extents.y + 0.1f) || Physics.Raycast(transform.position - new Vector3(transform.localScale.x / 2, 0, 0), down, out hit, GetComponent<BoxCollider>().bounds.extents.y + 0.1f))
-        {
-            if (hit.transform.gameObject.tag.Equals("Ground"))
-            {
-                grounded = true;
-
-            }
-            else
-            {
-                grounded = false;
-            }
-        }
-        else
-        {
-            grounded = false;
-        }
+        grounded = groundedCheck(down);
+     
+        
 
     }
     void jump()
@@ -237,13 +301,11 @@ public class PlayerController : MonoBehaviour
             RaycastHit hit;
             
 
-            if (Physics.Raycast(transform.position, down, out hit, GetComponent<BoxCollider>().bounds.extents.y + 0.1f) || Physics.Raycast(transform.position + new Vector3(transform.localScale.x / 2, 0, 0), down, out hit, GetComponent<BoxCollider>().bounds.extents.y + 0.1f) || Physics.Raycast(transform.position - new Vector3(transform.localScale.x / 2, 0, 0), down, out hit, GetComponent<BoxCollider>().bounds.extents.y + 0.1f))
-            {
 
-                if (hit.transform.gameObject.tag.Equals("Ground"))
+                if (groundedCheck(down))
                 {
 
-                    if (!bouncy)
+                    
                         if (Mathf.Abs(rb.velocity.x) > 0 && !Input.GetButton("Horizontal"))
                         {
                             rb.velocity = new Vector3(rb.velocity.x - (1 / friction) * Mathf.Abs(rb.velocity.x) * (rb.velocity.x / Mathf.Abs(rb.velocity.x)), rb.velocity.y, 0);
@@ -252,7 +314,7 @@ public class PlayerController : MonoBehaviour
 
 
                 }
-            }
+            
         }
     }
     // Update is called once per frame
