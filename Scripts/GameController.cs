@@ -7,6 +7,20 @@ public class GameController : MonoBehaviour
 {
     bool isResetting = false;
     bool reset = false;
+    [SerializeField] int level;
+    private void Start()
+    {
+        if(!PlayerPrefs.HasKey("levelReached") || PlayerPrefs.GetInt("levelReached") < level)
+        {
+            PlayerPrefs.SetInt("levelReached", level);
+            print("Reached level: " + PlayerPrefs.GetInt("levelReached"));
+
+        }
+        else
+        {
+            print(PlayerPrefs.GetInt("levelReached"));
+        }
+    }
     public void resetScene(bool wait)
     {
         if(wait)
