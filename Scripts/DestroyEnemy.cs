@@ -37,26 +37,14 @@ public class DestroyEnemy : MonoBehaviour {
                 {
                     if(first)
                     {
-                        if(Random.Range(0,1) == 1)
-                        {
-                            grounds[0].SetActive(false);
-                            grounds[1].SetActive(false);
-                        }
-                        else
-                        {
-                            grounds[2].SetActive(false);
-                            grounds[3].SetActive(false);
-                        }
+                        
+                            
+                        
 
                         first = false;
                     }
-                    else
-                    {
-                        foreach(GameObject g in grounds)
-                        {
-                            g.SetActive(!g.activeInHierarchy);
-                        }
-                    }
+                    grounds[0].GetComponent<ChangePlayerColor>().makeDraggable();
+                    grounds[1].GetComponent<ChangePlayerColor>().makeDraggable();
 
 
                     transform.parent.gameObject.GetComponent<Boss1>().gothit = true;
@@ -71,7 +59,7 @@ public class DestroyEnemy : MonoBehaviour {
                         f = -1000;
 
                     
-                    hit.transform.gameObject.GetComponent<Rigidbody>().AddForce(new Vector3(f, 800));
+                    hit.transform.gameObject.GetComponent<Rigidbody>().AddForce(new Vector3(f, 500));
                     hp--;
                     slide.value = hp;
                     if (hp < 0)

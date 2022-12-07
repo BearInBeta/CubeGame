@@ -7,7 +7,7 @@ public class ChangePlayerColor : MonoBehaviour {
     [SerializeField] PhysicMaterial bouncy;
     [SerializeField] PhysicMaterial Max;
     [SerializeField] Texture texture;
-    Color[] colors = new Color[] {Color.white, Color.cyan, new Color(1, 69f / 255f, 0, 1), Color.yellow, Color.green, Color.red, new Color(.5f, .8f,1, 0.2f), Color.magenta };
+    Color[] colors = new Color[] {Color.white, Color.cyan, new Color(1, 69f / 255f, 0, 1), Color.yellow, Color.green, Color.red, new Color(.5f, .8f,1, 0.2f), Color.magenta, new Color(0, 14f/255f, 92f/255f, 1) };
 
     [SerializeField] BlockTypes.TYPES type;
     // Use this for initialization
@@ -30,9 +30,19 @@ public class ChangePlayerColor : MonoBehaviour {
 		
 	}
 
+    public void makeDraggable()
+    {
+        gameObject.layer = 0;
+        gameObject.tag = "Drag";
+        GetComponent<Renderer>().material.SetColor("_EmissionColor", Color.black);
+        GetComponent<Renderer>().material.SetColor("_SpecColor", new Color(122f / 255f, 122f / 255f, 122f / 255f));
+
+        GetComponent<Rigidbody>().isKinematic = false;
+    }
     public void makeGround()
     {
-        
+        gameObject.layer = 0;
+        gameObject.tag = "Ground";
         GetComponent<Renderer>().material.SetColor("_EmissionColor", new Color(122f/255f, 122f / 255f, 122f / 255f));
         GetComponent<Renderer>().material.SetColor("_SpecColor", Color.black);
 
@@ -80,6 +90,6 @@ public static class BlockTypes
 {
     public enum TYPES:int // your custom enumeration
     {
-        NORMAL = 0, DOUBLE_JUMP = 1, BOUNCE = 2, SPEED = 3, GRAVITY = 4, SHOOT = 5, SHOOTABLE = 6, ROTATE =7
+        NORMAL = 0, DOUBLE_JUMP = 1, BOUNCE = 2, SPEED = 3, GRAVITY = 4, SHOOT = 5, SHOOTABLE = 6, ROTATE =7, VOIDOPEN = 8
     };
 }

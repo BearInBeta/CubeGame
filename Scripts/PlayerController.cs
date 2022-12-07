@@ -5,7 +5,10 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] float speed;
+    GameObject shotObject;
+    [SerializeField] particleAttractorSpherical telekenisis;
+    [SerializeField] float speed, maxSpeed;
+    [SerializeField] GameObject voidObject;
     [SerializeField] float friction;
     float actualSpeed;
     [SerializeField] float jumpSpeed;
@@ -36,6 +39,7 @@ public class PlayerController : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        Physics.IgnoreLayerCollision(3, 6);
         Physics.gravity = new Vector3(0, -Mathf.Abs(Physics.gravity.y), 0);
         rb = GetComponent<Rigidbody>();
         actualSpeed = speed;
@@ -45,6 +49,9 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        if(rb.velocity.x != 0)
+            lastOri = Math.Sign(rb.velocity.x);
+
         getMouseInput();
         down = transform.TransformDirection(Vector3.down * -Mathf.Sign(Physics.gravity.y));
         moveHorizontal = Input.GetAxis("Horizontal");
@@ -57,7 +64,7 @@ public class PlayerController : MonoBehaviour
         {
             StartCoroutine(removeGrounded());
         }
-        shoot();
+        
         //changeGravity();
         jump();
         
@@ -74,8 +81,10 @@ public class PlayerController : MonoBehaviour
         if (Input.GetMouseButtonUp(0) && selectedRigidbody)
         {
             selectedRigidbody.gameObject.GetComponent<ChangePlayerColor>().makeGround();
+            rb.isKinematic = false;
             //Release selected Rigidbody if there any
             selectedRigidbody = null;
+            telekenisis.gameObject.SetActive(false);
         }
 
     }
@@ -85,6 +94,10 @@ public class PlayerController : MonoBehaviour
 
         if (selectedRigidbody)
         {
+            rb.isKinematic = true;
+            telekenisis.target = selectedRigidbody.gameObject.transform;
+            telekenisis.gameObject.SetActive(true);
+            selectedRigidbody.gameObject.layer = 3;
             selectedRigidbody.constraints = RigidbodyConstraints.None;
             selectedRigidbody.freezeRotation = true;
             selectedRigidbody.gameObject.transform.rotation = Quaternion.identity;
@@ -126,6 +139,11 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (rb.velocity.magnitude > maxSpeed)
+        {
+            rb.velocity = rb.velocity.normalized * maxSpeed;
+        }
+        shoot();
         moveBody();
         move();
         moveClamp();
@@ -149,7 +167,7 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator removeHorbounce()
     {
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.2f);
         horBounce = false;
     }
     private void OnCollisionEnter(Collision collision)
@@ -196,12 +214,12 @@ public class PlayerController : MonoBehaviour
     }
     void shoot()
     {
-        if (shooting && Input.GetButtonUp("Fire1") && GameObject.FindGameObjectsWithTag("Shot").Length == 0)
+        if (selectedRigidbody == null && shooting && Input.GetButtonUp("Fire1") && shotObject == null)
         {
             if (lastOri > 0)
-                Instantiate(shot, transform.position + Vector3.right, Quaternion.identity);
+                shotObject = Instantiate(shot, transform.position + Vector3.right, Quaternion.identity);
             else if (lastOri < 0)
-                Instantiate(shot, transform.position - Vector3.right, Quaternion.Euler(0, 0, 180));
+                shotObject = Instantiate(shot, transform.position - Vector3.right, Quaternion.Euler(0, 0, 180));
         }
     }
     void changeGravity()
@@ -284,10 +302,9 @@ public class PlayerController : MonoBehaviour
             //  {
 
             Vector3 movement = new Vector3(moveHorizontal * actualSpeed, rb.velocity.y, 0);
-            if (Mathf.Abs(rb.velocity.x) < Mathf.Abs(movement.x) || movement.x * rb.velocity.x < 0)
+            if (rb.isKinematic == false && ( Mathf.Abs(rb.velocity.x) < Mathf.Abs(movement.x) || movement.x * rb.velocity.x < 0))
                 rb.velocity = movement;
-            if (moveHorizontal != 0)
-                lastOri = moveHorizontal;
+
             // }
             if (Mathf.Abs(jumpAmount) > 0 && rb.velocity.y != Mathf.Sign(jumpAmount))
             {
@@ -327,20 +344,34 @@ public class PlayerController : MonoBehaviour
 
 
         ChangePlayerColor cpc = g.GetComponent<ChangePlayerColor>();
-        
+        if(cpc == null)
+        {
+            return;
+        }
+        if(g.GetComponent<AudioSource>().clip != null)
         g.GetComponent<AudioSource>().PlayOneShot(g.GetComponent<AudioSource>().clip);
-        gameObject.GetComponentInChildren<Renderer>().material.SetColor("_Color", cpc.getColor());
+        BlockTypes.TYPES cpcType = cpc.getType();
 
 
 
-
-
+        if (cpc.gameObject.tag == "Drag")
+        {
+            return;
+        }
         actualSpeed = speed;
         doubleJump = false;
         shooting = false;
         changeG = false;
         bouncy = false;
-        if (cpc.getType() == BlockTypes.TYPES.GRAVITY)
+
+        gameObject.GetComponentInChildren<Renderer>().material.SetColor("_Color", cpc.getColor());
+
+        if (cpcType == BlockTypes.TYPES.VOIDOPEN)
+        {
+            cpc.changeType(BlockTypes.TYPES.NORMAL, false);
+            voidObject.SetActive(true);
+        }
+        else if (cpcType == BlockTypes.TYPES.GRAVITY)
         {
             if (cpc != lastUsed)
             {
@@ -348,25 +379,25 @@ public class PlayerController : MonoBehaviour
                 changeGravity();
             }
         }
-        else if (cpc.getType() == BlockTypes.TYPES.DOUBLE_JUMP)
+        else if (cpcType == BlockTypes.TYPES.DOUBLE_JUMP)
         {
             doubleJump = true;
         }
-        else if (cpc.getType() == BlockTypes.TYPES.BOUNCE)
+        else if (cpcType == BlockTypes.TYPES.BOUNCE)
         {
             bouncy = true;
             bounce(collision);
         }
-        else if (cpc.getType() == BlockTypes.TYPES.SPEED)
+        else if (cpcType == BlockTypes.TYPES.SPEED)
         {
             actualSpeed = speed * 2f;
 
         }
-        else if (cpc.getType() == BlockTypes.TYPES.SHOOT)
+        else if (cpcType == BlockTypes.TYPES.SHOOT)
         {
             shooting = true;
         }
-        else if (cpc.getType() == BlockTypes.TYPES.ROTATE)
+        else if (cpcType == BlockTypes.TYPES.ROTATE)
         {
             if (cpc != lastUsed)
             {
@@ -375,7 +406,7 @@ public class PlayerController : MonoBehaviour
         }
     
 
-        type = cpc.getType();
+        type = cpcType;
         lastUsed = cpc;
 
 
