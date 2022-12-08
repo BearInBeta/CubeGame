@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class ExitGame : MonoBehaviour {
 
@@ -13,7 +14,7 @@ public class ExitGame : MonoBehaviour {
 	void Update () {
 		if(Input.GetKeyUp(KeyCode.Escape))
         {
-            Application.Quit();
-        }
+			SceneManager.LoadScene("Main_Menu");
+		}
 	}
 }

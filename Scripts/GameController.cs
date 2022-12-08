@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,10 +8,12 @@ public class GameController : MonoBehaviour
 {
     bool isResetting = false;
     bool reset = false;
-    [SerializeField] int level;
+    int level;
     private void Start()
     {
-        if(!PlayerPrefs.HasKey("levelReached") || PlayerPrefs.GetInt("levelReached") < level)
+
+        level = Array.IndexOf(Levels.levels, SceneManager.GetActiveScene().name);
+        if (!PlayerPrefs.HasKey("levelReached") || PlayerPrefs.GetInt("levelReached") < level)
         {
             PlayerPrefs.SetInt("levelReached", level);
             print("Reached level: " + PlayerPrefs.GetInt("levelReached"));
@@ -51,6 +54,11 @@ public class GameController : MonoBehaviour
 
     public void nextScene()
     {
-        SceneManager.LoadScene((SceneManager.GetActiveScene().buildIndex + 1) % SceneManager.sceneCountInBuildSettings);
+        if(level + 1 >= Levels.levels.Length)
+        {
+            SceneManager.LoadScene("Prototype");
+        }
+        else
+        SceneManager.LoadScene(Levels.levels[(level + 1)]);
     }
 }

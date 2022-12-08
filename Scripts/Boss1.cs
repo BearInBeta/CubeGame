@@ -24,7 +24,7 @@ public class Boss1 : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-        transform.Rotate(new Vector3(0, 1, 0) * speed);
+        transform.Rotate(new Vector3(0, 1, 0) * speed * Time.deltaTime);
 
         if(!rotating && !waiting)
         {
@@ -39,9 +39,9 @@ public class Boss1 : MonoBehaviour {
 
         GetComponent<AudioSource>().Play();
 
-        for (int i = 0; i < maxSpeed; i+=10)
+        for (int i = 0; i < maxSpeed; i+=200)
         {
-            Body.GetComponent<Renderer>().material.SetColor("_Color", Color.Lerp(Body.GetComponent<Renderer>().material.color, Color.red, 0.1f));
+            Body.GetComponent<Renderer>().material.SetColor("_Color", Color.Lerp(Body.GetComponent<Renderer>().material.color, Color.red, 0.2f));
             speed = i;
             yield return new WaitForSeconds(0.2f);
 
@@ -78,7 +78,7 @@ public class Boss1 : MonoBehaviour {
         rotating = false;
         waiting = true;
         gothit = false;
-        for (int i = 50; i > 0; i -= 10)
+        for (int i = maxSpeed; i > 0; i -= 200)
         {
             speed = i;
             Body.GetComponent<Renderer>().material.SetColor("_Color", Color.Lerp(Body.GetComponent<Renderer>().material.color, Color.white, 0.2f));

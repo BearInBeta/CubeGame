@@ -66,6 +66,7 @@ public class PlayerController : MonoBehaviour
         }
         
         //changeGravity();
+        if(Time.timeScale != 0)
         jump();
         
 
@@ -78,13 +79,19 @@ public class PlayerController : MonoBehaviour
             //Check if we are hovering over Rigidbody, if so, select it
             selectedRigidbody = GetRigidbodyFromMouseClick();
         }
-        if (Input.GetMouseButtonUp(0) && selectedRigidbody)
+        if ((Input.GetMouseButtonUp(0) || Time.timeScale == 0) && selectedRigidbody)
         {
             selectedRigidbody.gameObject.GetComponent<ChangePlayerColor>().makeGround();
             rb.isKinematic = false;
             //Release selected Rigidbody if there any
             selectedRigidbody = null;
             telekenisis.gameObject.SetActive(false);
+            GetComponent<AudioSource>().Stop();
+        }
+        else
+        {
+            if(Time.timeScale != 0)
+            shoot();
         }
 
     }
@@ -96,6 +103,8 @@ public class PlayerController : MonoBehaviour
         {
             rb.isKinematic = true;
             telekenisis.target = selectedRigidbody.gameObject.transform;
+            if(!GetComponent<AudioSource>().isPlaying)
+            GetComponent<AudioSource>().Play();
             telekenisis.gameObject.SetActive(true);
             selectedRigidbody.gameObject.layer = 3;
             selectedRigidbody.constraints = RigidbodyConstraints.None;
@@ -143,7 +152,7 @@ public class PlayerController : MonoBehaviour
         {
             rb.velocity = rb.velocity.normalized * maxSpeed;
         }
-        shoot();
+        
         moveBody();
         move();
         moveClamp();
@@ -310,12 +319,12 @@ public class PlayerController : MonoBehaviour
             {
                 rb.velocity = new Vector3(rb.velocity.x, 0);
                 rb.AddForce(Vector2.up * jumpAmount, ForceMode.Impulse);
+               
             }
             
            
           
             jumpAmount = 0;
-            RaycastHit hit;
             
 
 
@@ -369,7 +378,7 @@ public class PlayerController : MonoBehaviour
         if (cpcType == BlockTypes.TYPES.VOIDOPEN)
         {
             cpc.changeType(BlockTypes.TYPES.NORMAL, false);
-            voidObject.SetActive(true);
+            voidObject.GetComponent<Void>().voidShow();
         }
         else if (cpcType == BlockTypes.TYPES.GRAVITY)
         {

@@ -19501,9 +19501,9 @@ Rigidbody:
   m_AngularDrag: 0.05
   m_UseGravity: 1
   m_IsKinematic: 0
-  m_Interpolate: 1
+  m_Interpolate: 0
   m_Constraints: 120
-  m_CollisionDetection: 2
+  m_CollisionDetection: 1
 --- !u!65 &65020656187518324
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -19529,10 +19529,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db28853406ca82242bf46a2c903e2c73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  telekenisis: {fileID: 0}
   speed: 7
   maxSpeed: 30
   voidObject: {fileID: 0}
-  friction: 12
+  friction: 1000
   jumpSpeed: 7
   shot: {fileID: 1364540339379714, guid: 9393db45c947841409d2ddf0223a6840, type: 3}
   canMove: 1

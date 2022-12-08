@@ -53,7 +53,8 @@ public class DestroyEnemy : MonoBehaviour {
                     wait = true;
                     float f;
 
-                    if (grounds[0].activeInHierarchy)
+                    
+                    if (Random.Range(0f, 1f) < 0.5)
                         f = 1000;
                     else
                         f = -1000;
@@ -67,7 +68,7 @@ public class DestroyEnemy : MonoBehaviour {
                         hit.transform.gameObject.GetComponent<PlayerController>().canMove = true;
 
                         Instantiate(explosion, transform.position, Quaternion.identity);
-                        Void.SetActive(true);
+                        Void.GetComponent<Void>().voidShow();
                         Destroy(slide.gameObject);
                         Destroy(gameObject.transform.parent.gameObject);
                     }
@@ -110,13 +111,14 @@ public class DestroyEnemy : MonoBehaviour {
     IEnumerator Waiting(GameObject p)
     {
         electricity.SetActive(true);
-        spikes.SetActive(true);
+        
         while (spikes.transform.position.y < 0)
         {
             spikes.transform.position += new Vector3(0, 0.01f, 0);
             yield return new WaitForFixedUpdate();
 
         }
+        spikes.SetActive(true);
         if (p != null)
         {
             p.GetComponent<PlayerController>().canMove = true;

@@ -52,7 +52,7 @@ BoxCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3965969067585996779}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: c2815a7ab32e42c4bb42f59caacb8ec1, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -215,9 +215,9 @@ MonoBehaviour:
   - {fileID: 8300000, guid: e253c5d3711cb4b489a518b0c8ac8db5, type: 3}
   - {fileID: 8300000, guid: 5ebdab3cf6446844091dade47ab59804, type: 3}
   - {fileID: 8300000, guid: 845eed6173d3d7a4cb3c170c3ced4e22, type: 3}
-  - {fileID: 8300000, guid: 4e383a3d133dd6e4abfed00ae8f171b0, type: 3}
+  - {fileID: 8300000, guid: a972c1fdf9aa63a468bf9a510ef74b96, type: 3}
   - {fileID: 8300000, guid: 31c93248b31317e4bb5ad88ca8932eb8, type: 3}
-  - {fileID: 0}
+  - {fileID: 8300000, guid: 4e383a3d133dd6e4abfed00ae8f171b0, type: 3}
   bouncy: {fileID: 13400000, guid: 9f93f63d068b08c459038c40fce897d8, type: 2}
   Max: {fileID: 13400000, guid: 3aeb7dadc0c69d54d9e5777e9d5631f1, type: 2}
   texture: {fileID: 2800000, guid: 2d73b75f931534c68aa1de2b51cf924f, type: 3}

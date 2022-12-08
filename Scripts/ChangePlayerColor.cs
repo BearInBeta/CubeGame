@@ -69,7 +69,7 @@ public class ChangePlayerColor : MonoBehaviour {
     }
     void ColorSet()
     {
-        GetComponent<BoxCollider>().material = Max;
+        //GetComponent<BoxCollider>().material = Max;
         GetComponent<Renderer>().material.SetColor("_Color", getColor());
         if (type == BlockTypes.TYPES.SHOOTABLE)
         {

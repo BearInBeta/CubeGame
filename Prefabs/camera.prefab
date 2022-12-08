@@ -157,7 +157,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   settings:
     threshold: 1.2
-    radius: 2
+    radius: 1.1
     intensity: 0.1
     highQuality: 1
     antiFlicker: 1

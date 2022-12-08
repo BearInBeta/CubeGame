@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -6,16 +8,38 @@ using UnityEngine.SceneManagement;
 public class Void : MonoBehaviour {
     [SerializeField] GameObject effect;
     [SerializeField] AudioClip AC;
+    public bool coinCollected = false;
+    [SerializeField] bool voidHidden = false;
 	// Use this for initialization
 	void Start () {
-		
-	}
+        if (voidHidden)
+        {
+            voidHide();
+        }
+        coinCollected = false;
+    }
 	
 	// Update is called once per frame
 	void Update () {
 		
 	}
-
+    public void voidHide()
+    {
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            transform.GetChild(i).gameObject.SetActive(false);
+        }
+        GetComponent<MeshRenderer>().enabled = false;
+    }
+    public void voidShow()
+    {
+        voidHidden = false;
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            transform.GetChild(i).gameObject.SetActive(true);
+        }
+        GetComponent<MeshRenderer>().enabled = true;
+    }
     private void FixedUpdate()
     {
         GetComponent<Rigidbody>().AddTorque(new Vector3(0, 0, 1), ForceMode.Impulse);
@@ -23,7 +47,7 @@ public class Void : MonoBehaviour {
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag.Equals("Player"))
+        if (!voidHidden && other.gameObject.tag.Equals("Player"))
         {
             if(other.gameObject.transform.Find("camera") != null)
             other.gameObject.transform.Find("camera").parent = null;
@@ -41,6 +65,37 @@ public class Void : MonoBehaviour {
     }
     IEnumerator endLvl()
     {
+        if (coinCollected)
+        {
+            print("coin was collected: " + coinCollected);
+            List<int> CoinList;
+            if (PlayerPrefs.HasKey("CoinList"))
+            {
+                try
+                {
+                    CoinList = (List<int>)JsonConvert.DeserializeObject<List<int>>(PlayerPrefs.GetString("CoinList"));
+                }
+                catch (Exception e)
+                {
+                    print(e.Message);
+                    CoinList = new List<int>();
+                }
+            }
+            else
+                CoinList = new List<int>();
+
+            int level = Array.IndexOf(Levels.levels, SceneManager.GetActiveScene().name);
+
+
+            if (!CoinList.Contains(level))
+            {
+                CoinList.Add(level);
+                string coinJson = JsonConvert.SerializeObject(CoinList);
+                PlayerPrefs.SetString("CoinList", coinJson);
+                print(coinJson);
+            }
+        }
+
         yield return new WaitForSeconds(0.5f);
         gameObject.GetComponent<MeshRenderer>().enabled = false;
         for(int i = 0; i < transform.childCount; i++)
